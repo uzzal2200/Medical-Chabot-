@@ -1,5 +1,11 @@
 # 🏥 Medical Chatbot - AI-Powered Healthcare Assistant
 
+![Python](https://img.shields.io/badge/Python-3.10-blue)
+![Flask](https://img.shields.io/badge/Flask-3.1.1-green)
+![LangChain](https://img.shields.io/badge/LangChain-Latest-orange)
+![OpenAI](https://img.shields.io/badge/OpenAI-GPT--4o-purple)
+![License](https://img.shields.io/badge/License-MIT-yellow)
+
 A sophisticated Retrieval-Augmented Generation (RAG) based medical chatbot that provides intelligent responses to medical queries by leveraging vector embeddings and large language models. The system processes medical documents, creates semantic embeddings, and retrieves contextually relevant information to generate accurate and helpful responses.
 
 ---
@@ -9,7 +15,6 @@ A sophisticated Retrieval-Augmented Generation (RAG) based medical chatbot that 
 - [Overview](#overview)
 - [Features](#features)
 - [Technology Stack](#technology-stack)
-- [Technology Budget](#technology-budget)
 - [Architecture](#architecture)
 - [Project Structure](#project-structure)
 - [Prerequisites](#prerequisites)
@@ -70,88 +75,62 @@ The system is designed to assist users with medical information queries by retri
 
 ---
 
-## 💰 Technology Budget
-
-### Monthly Cost Estimates
-
-| Service | Tier/Plan | Estimated Monthly Cost | Notes |
-|---------|-----------|----------------------|-------|
-| **OpenAI API** | GPT-4o (Pay-per-use) | $50 - $200 | Based on ~1,000-5,000 queries/month |
-| **Pinecone** | Starter Plan | $70 | Serverless, 1 index, 100K vectors |
-| **AWS EC2** | t3.medium (2 vCPU, 4GB RAM) | $30 | On-demand pricing (us-east-1) |
-| **AWS ECR** | Storage (10GB) | $1 | Container image storage |
-| **GitHub Actions** | Free tier | $0 | 2,000 minutes/month included |
-| **Domain & SSL** | Optional | $0 - $15 | If using custom domain |
-| **Total Estimated** | - | **$151 - $316/month** | Varies with usage |
-
-### Cost Optimization Tips
-- Use Pinecone's free tier for development/testing
-- Implement response caching to reduce API calls
-- Consider AWS EC2 Reserved Instances for 40-60% savings
-- Monitor OpenAI token usage and optimize prompts
-- Use smaller embedding models for non-critical applications
-
----
-
 ## 🏗 Architecture
 
 ### System Architecture Diagram
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                         User Interface                          │
-│                    (Flask Web Application)                      │
-└────────────────────────────┬────────────────────────────────────┘
-                             │
-                             ▼
-                    ┌────────────────┐
-                    │   Flask API    │
-                    │   (app.py)     │
-                    └────────┬───────┘
-                             │
-                             ▼
-        ┌────────────────────────────────────────────┐
-        │         LangChain RAG Chain                │
-        │  ┌──────────────────────────────────────┐  │
-        │  │  Retrieval Chain                     │  │
-        │  │  ┌──────────────┐  ┌──────────────┐ │  │
-        │  │  │  Retriever   │→ │  LLM Chain   │ │  │
-        │  │  │  (Pinecone)  │  │  (GPT-4o)    │ │  │
-        │  │  └──────────────┘  └──────────────┘ │  │
-        │  └──────────────────────────────────────┘  │
-        └────────────────────────────────────────────┘
-                             │
-                ┌────────────┴────────────┐
-                │                         │
-                ▼                         ▼
-    ┌──────────────────┐      ┌──────────────────┐
-    │  Pinecone Vector │      │   OpenAI API     │
-    │     Database     │      │     (GPT-4o)     │
-    │  (Embeddings)    │      │  (Text Gen)      │
-    └──────────────────┘      └──────────────────┘
-                │
-                ▼
-    ┌──────────────────────────┐
-    │  Hugging Face Embeddings │
-    │  (sentence-transformers) │
-    │  all-MiniLM-L6-v2        │
-    └──────────────────────────┘
+```mermaid
+flowchart TB
+    A[User Interface<br/>Flask Web Application] --> B[Flask API<br/>app.py]
+    B --> C[LangChain RAG Chain]
+    C --> D[Retrieval Chain]
+    D --> E[Retriever<br/>Pinecone]
+    D --> F[LLM Chain<br/>GPT-4o]
+    E --> G[Pinecone Vector Database<br/>Embeddings Storage]
+    F --> H[OpenAI API<br/>GPT-4o Text Generation]
+    G --> I[Hugging Face Embeddings<br/>sentence-transformers/all-MiniLM-L6-v2]
+
+    style A fill:#e1f5ff
+    style B fill:#b3e5fc
+    style C fill:#81d4fa
+    style D fill:#4fc3f7
+    style E fill:#29b6f6
+    style F fill:#03a9f4
+    style G fill:#0288d1
+    style H fill:#0277bd
+    style I fill:#01579b
 ```
 
-### Data Flow
+### Data Flow Diagram
 
-```
-PDF Documents → Text Extraction → Chunking → Embedding Generation
-                                                      ↓
-                                              Pinecone Vector Store
-                                                      ↓
-User Query → Embedding → Similarity Search → Context Retrieval
-                                                      ↓
-                                              RAG Chain (LangChain)
-                                                      ↓
-                                              GPT-4o Generation
-                                                      ↓
-                                              Response to User
+```mermaid
+flowchart LR
+    A[PDF Documents] --> B[Text Extraction]
+    B --> C[Chunking]
+    C --> D[Embedding Generation]
+    D --> E[Pinecone Vector Store]
+
+    F[User Query] --> G[Query Embedding]
+    G --> H[Similarity Search]
+    H --> I[Context Retrieval]
+    I --> J[RAG Chain<br/>LangChain]
+    J --> K[GPT-4o Generation]
+    K --> L[Response to User]
+
+    E -.-> H
+
+    style A fill:#ffebee
+    style B fill:#ffcdd2
+    style C fill:#ef9a9a
+    style D fill:#e57373
+    style E fill:#ef5350
+    style F fill:#e3f2fd
+    style G fill:#bbdefb
+    style H fill:#90caf9
+    style I fill:#64b5f6
+    style J fill:#42a5f5
+    style K fill:#2196f3
+    style L fill:#1976d2
 ```
 
 ### Component Details
